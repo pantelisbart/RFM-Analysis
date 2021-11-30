@@ -16,6 +16,10 @@ Frequency is how often a customer purchase something.
 Monetary is the money he spends.
 
 
+
+
+
+
 Dataset: https://archive.ics.uci.edu/ml/datasets/online+retail
 
 Source:
