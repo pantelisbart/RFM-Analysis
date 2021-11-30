@@ -9,11 +9,11 @@ RFM analysis is based on the Recency(R) , Frequency (F) & Monetary (M) variables
 
 More specifically,
 
-Recency is the variable which shows when was the last time a customer bought something.
+* Recency is the variable which shows when was the last time a customer bought something.
 
-Frequency is how often a customer purchase something.
+* Frequency is how often a customer purchase something.
 
-Monetary is the money he spends.
+* Monetary is the money he spent.
 
 
 
