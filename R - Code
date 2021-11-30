@@ -1,0 +1,202 @@
+
+Attribute Information:
+
+InvoiceNo: Invoice number. Nominal, a 6-digit integral number uniquely assigned to each transaction. If this code starts with letter 'c', it indicates a cancellation.
+StockCode: Product (item) code. Nominal, a 5-digit integral number uniquely assigned to each distinct product.
+Description: Product (item) name. Nominal.
+Quantity: The quantities of each product (item) per transaction. Numeric.
+InvoiceDate: Invice Date and time. Numeric, the day and time when each transaction was generated.
+UnitPrice: Unit price. Numeric, Product price per unit in sterling.
+CustomerID: Customer number. Nominal, a 5-digit integral number uniquely assigned to each customer.
+Country: Country name. Nominal, the name of the country where each customer resides.
+
+
+#R - Libraries
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(lubridate)
+library(ExcelFunctionsR)
+library(ds4psy)
+library('pgmm')
+library('cluster')
+library('mclust')
+library('NbClust')
+library(tidyverse)  
+library(cluster)    
+library(factoextra) 
+library(rfm)
+
+
+
+#Data Cleansing
+
+#Remove zeors and negative values from quantities and prices. Maybe wrong data entry. Either way it doesn't benefit the analysis so we must remove them.
+data <- data %>% 
+  mutate(Quantity = replace(Quantity, Quantity<=0, NA),
+         UnitPrice = replace(UnitPrice, UnitPrice<=0, NA))
+         
+data<-na.omit(data)
+
+#Declare variables as Factors, Numeric & Dates
+data <- data %>% 
+  mutate(InvoiceNo=as.factor(InvoiceNo), StockCode=as.factor(StockCode), 
+         InvoiceDate=as.Date(InvoiceDate, '%m/%d/%Y %H:%M'), CustomerID=as.factor(CustomerID), 
+         Country=as.factor(Country))
+
+data <- data %>% 
+  mutate(Spending = Quantity*UnitPrice)
+
+
+#Calculate RFM
+
+RFM_data<- data %>%
+  group_by(CustomerID) %>%
+  summarise(Recency=as.numeric(as.Date("2012-01-01")-max(InvoiceDate)),
+            Frequency=n_distinct(InvoiceNo), Monetary= sum(Spending)) 
+
+
+#Outliers Removal
+#We can see in the plots that there are many outliers in Frequency and Monetary variables.
+
+par(mfrow=c(1:2))
+boxplot(RFM_data$Frequency,main="Frequency Outliers Detection",col="blue")
+boxplot(RFM_data$Monetary,main="Monetary Outliers Detection",col="red")
+
+
+#remove outliers
+outliers1<-boxplot(RFM_data$Frequency, plot=FALSE)$out
+
+outliers2<-boxplot(RFM_data$Monetary, plot=FALSE)$out
+
+
+RFM_data<- RFM_data[-which(RFM_data$Frequency %in% outliers1),]
+
+RFM_data<- RFM_data[-which(RFM_data$Monetary %in% outliers2),]
+
+#We plot the again to see the difference.
+par(mfrow=c(1:2))
+boxplot(RFM_data$Frequency,main="Frequency Outliers Detection",col="blue")
+boxplot(RFM_data$Monetary,main="Monetary Outliers Detection",col="red")
+
+
+# Hierarchical Clustering
+
+#Scaling is a process to compare the data that is not measured in the same approach. 
+#Scaling is the normalization of a dataset using the mean value and standard deviation.
+
+x<-scale(RFM_data[,-1])
+
+#Euclidean Distance
+d<-dist(x,method="euclidean")
+
+
+
+Η single είναι γνωστή και ως Nearest Neighbor, δηλαδή βρίσκει την ελάχιστη απόσταση 2 σημείων και τις ομαδοποιεί.
+Η Complete είναι γνωστή και ως Further Neighbor , δηλαδή βρίσκει την μεγαλύτερη απόσταση 2 σημείων και τις ομαδοποιεί.
+Η Average συνάρτηση σύνδεσης καθορίζει την απόσταση μεταξύ δύο clusters, υπολογίζοντας τη μέση απόσταση μεταξύ αντικειμένων από το πρώτο cluster 
+και αντικειμένων από το δεύτερο cluster.
+
+Τέλος, η Ward d2 είναι αρχικά η μέθοδος Ward ,αλλά με υψωμένο στο τετράγωνο τον πίνακα αποστάσεων. Αυτή η μέθοδος δημιουργεί clusters ίδιου μεγέθους 
+και βασίζεται στο κριτήριο ελάχιστης διακύμανσης του Ward , όπου ελαχιστοποιεί τη συνολική διακύμανση εντός του cluster.
+
+#Introduction to Distance – Based Methods
+
+# Single : It is known as Nearest Neighbour, finds the minimum distance of two points and clusters them.
+# Complete: It is known as Further Neighbour , finds the maximum distance of two points and clusters them.
+# Average: It calculates the mean distance of points of one cluster and the mean distance of the second cluster and it defines the distance of two clusters.
+# Ward d2 : Is the Ward method with just matrix distance multiplied with itself. This method creates clusters with the same size and it depends on the criteria of minimum variance of Ward.
+
+#Hierarchical Clustering all methods 
+#Single method
+fit.s<-hclust(d , method= "single")
+
+#Complete Method
+fit.c <- hclust(d, method = "complete")
+
+#Average Method
+fit.a<-hclust(d,method="average")
+
+#Ward's Method
+fit.d2<-hclust(d,method = "ward.D2")
+
+
+#plot the resulting dendrogramms 
+par(mfrow=c(2,2))
+
+#εδω φαινεται οτι εχουμε ενα outlier. Αυτο το μειονεκτημα εχει η single. φαινεται οτι πανω αριστερα εχει ενα κλαδι μονο του. αυτο ειναι outlier
+#Single method is vulnarble in outliers and it is shown at the first plot.
+
+plot(fit.s, main = "Single Linkage",sub="",xlab="",ylab="",cex=0.6)
+rect.hclust(fit.s, k=2, border="red")
+plot(fit.c, main = "Complete Linkage",sub="",xlab="",ylab="",cex=0.6)
+rect.hclust(fit.c, k=2, border="red")
+plot(fit.a, main = "Average Linkage",sub="",xlab="",ylab="",cex=0.6)
+rect.hclust(fit.a, k=2, border="red")
+plot(fit.d2, main = "Ward's method ",sub="",xlab="",ylab="",cex=0.6)
+rect.hclust(fit.d2, k=3, border="red")
+
+#We assume that we are between 2-3 clusters. In clustering we have to test many aspects to determine how many clusters do we have.
+
+#The silhouette plot displays a measure of how close each point in one cluster is to points in the neighboring clusters and thus provides a way to assess parameters like number of clusters visually.
+
+#Everything is good, all observations seemed to have been clustered properly . All are positive and close to 1.
+# Again we are between 2-3 clusters.
+par(mfrow=c(2,2))
+plot(silhouette(cutree(fit.s, k = 2), d),col=1:3, border=NA)
+plot(silhouette(cutree(fit.c, k = 2), d),col=1:3, border=NA)
+plot(silhouette(cutree(fit.a, k = 2), d),col=1:3, border=NA)
+plot(silhouette(cutree(fit.d2, k = 3), d),col=1:3, border=NA)
+
+
+
+# Elbow method
+# indicates 2 - 3 clusters.
+fviz_nbclust(RFM_data, kmeans, method = "wss")
+
+#K - Means
+
+#	using k = 2 clusters
+km2<- kmeans(x, 2)
+
+#	using k = 3 clusters
+km3<- kmeans(x, 3)
+
+#	using k = 4 clusters
+km4<- kmeans(x, 4)
+
+#	using k = 5 clusters
+km5<- kmeans(x, 5)
+
+# K - Means plots
+pairs(x, col = km2$cluster)	#k-means with k = 2
+
+pairs(x, col = km3$cluster)	#k-means with k = 3
+
+pairs(x, col = km4$cluster)	#k-means with k = 4
+
+
+#average shilouette width it's important to be close to 1. Again 2-3 clusters gives us the best results.
+par(mfrow=c(1,4))
+plot(silhouette(km2$cluster, dist(scale(RFM_data[,-c(1)]))),col=2:3,main ='ward',border=NA)
+plot(silhouette(km3$cluster,  dist(scale(RFM_data[,-c(1)]))),col=2:4,main ='ward',border=NA)
+plot(silhouette(km4$cluster,  dist(scale(RFM_data[,-c(1)]))),col=2:5,main ='ward',border=NA)
+plot(silhouette(km5$cluster,  dist(scale(RFM_data[,-c(1)]))),col=2:5,main ='ward',border=NA)
+
+
+# Conclusion: 
+# Hierarchical clustering and K-Means algorithms indicates that the optimal clusters for our customer database seems to be 3 clusters.
+# Let's say that we want to analyze K- Means algorithm.
+# We have 3 clusters. 
+# 1st cluster: 839 customers
+# 2nd cluster: 979 customers
+# 3rd cluster: 2046 customers
+
+
+
+
+
+
+
+
