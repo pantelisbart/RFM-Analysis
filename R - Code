@@ -90,16 +90,6 @@ x<-scale(RFM_data[,-1])
 #Euclidean Distance
 d<-dist(x,method="euclidean")
 
-
-
-Η single είναι γνωστή και ως Nearest Neighbor, δηλαδή βρίσκει την ελάχιστη απόσταση 2 σημείων και τις ομαδοποιεί.
-Η Complete είναι γνωστή και ως Further Neighbor , δηλαδή βρίσκει την μεγαλύτερη απόσταση 2 σημείων και τις ομαδοποιεί.
-Η Average συνάρτηση σύνδεσης καθορίζει την απόσταση μεταξύ δύο clusters, υπολογίζοντας τη μέση απόσταση μεταξύ αντικειμένων από το πρώτο cluster 
-και αντικειμένων από το δεύτερο cluster.
-
-Τέλος, η Ward d2 είναι αρχικά η μέθοδος Ward ,αλλά με υψωμένο στο τετράγωνο τον πίνακα αποστάσεων. Αυτή η μέθοδος δημιουργεί clusters ίδιου μεγέθους 
-και βασίζεται στο κριτήριο ελάχιστης διακύμανσης του Ward , όπου ελαχιστοποιεί τη συνολική διακύμανση εντός του cluster.
-
 #Introduction to Distance – Based Methods
 
 # Single : It is known as Nearest Neighbour, finds the minimum distance of two points and clusters them.
