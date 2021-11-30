@@ -114,7 +114,6 @@ fit.d2<-hclust(d,method = "ward.D2")
 #plot the resulting dendrogramms 
 par(mfrow=c(2,2))
 
-#εδω φαινεται οτι εχουμε ενα outlier. Αυτο το μειονεκτημα εχει η single. φαινεται οτι πανω αριστερα εχει ενα κλαδι μονο του. αυτο ειναι outlier
 #Single method is vulnarble in outliers and it is shown at the first plot.
 
 plot(fit.s, main = "Single Linkage",sub="",xlab="",ylab="",cex=0.6)
