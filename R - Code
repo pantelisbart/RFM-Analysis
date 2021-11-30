@@ -29,7 +29,6 @@ library(factoextra)
 library(rfm)
 
 
-
 #Data Cleansing
 
 #Remove zeors and negative values from quantities and prices. Maybe wrong data entry. Either way it doesn't benefit the analysis so we must remove them.
@@ -193,8 +192,13 @@ plot(silhouette(km5$cluster,  dist(scale(RFM_data[,-c(1)]))),col=2:5,main ='ward
 # 2nd cluster: 979 customers
 # 3rd cluster: 2046 customers
 
+#Cluster 1 : Best Customer = High Frequency & High spending & recent shopper. Best audience for launching new marketing campaigns.
 
+#Cluster 2 : Medium level shopper. Steady shopping habits. Try to keep up and optimize the relationship.
 
+#Cluster 3: At risk or lost customer low level customer behaviour. 
+
+#Research must be done in order to figure out why the left or why they don't buy frequently.
 
 
 
