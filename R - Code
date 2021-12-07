@@ -31,7 +31,7 @@ library(rfm)
 
 #Data Cleansing
 
-#Remove zeors and negative values from quantities and prices. Maybe wrong data entry. Either way it doesn't benefit the analysis so we must remove them.
+#Remove zeros and negative values from quantities and prices. Maybe wrong data entry. Either way it doesn't benefit the analysis so we must remove them.
 data <- data %>% 
   mutate(Quantity = replace(Quantity, Quantity<=0, NA),
          UnitPrice = replace(UnitPrice, UnitPrice<=0, NA))
