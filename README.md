@@ -5,7 +5,7 @@ In this example of E-Commerce data we will try to implement Hierarchical Cluster
 
 The main focus of the study is to identify how many clusters exist in the dataset based on RFM Analysis.
 
-RFM analysis is based on the Recency(R) , Frequency (F) & Monetary (M) variables.
+RFM analysis is based on the Recency (R) , Frequency (F) & Monetary (M) variables.
 
 More specifically,
 
