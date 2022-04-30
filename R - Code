@@ -193,3 +193,31 @@ plot(silhouette(km5$cluster,  dist(scale(RFM_data[,-c(1)]))),col=2:5,main ='ward
 
 
 
+
+
+# Cluster RFM means plot barplot
+x1 <- c(47, 11, 211)
+x2 <- c(50, 22, 1.316)
+group <- c("Cluster_R", "Cluster_F", "Cluster_M")
+
+plot.new()
+plot.window(xlim = c(1, 15), ylim = c(0,250))
+abline(h = 0:6/10, col = "grey")
+barplot(rbind(x1, x2), beside = T, space = c(0.5, 2), axes = F,
+        col = c("Navy blue", "blue"), xlab = "groups", ylab = "ratios of words",
+        names.arg = group, add = T)
+legend(x = "topright", legend = c("Cluster 1", "Cluster 2"),
+       fill = c("Navy blue", "blue"), box.col = NA)
+
+
+
+
+
+
+
+
+
+
+
+
+
